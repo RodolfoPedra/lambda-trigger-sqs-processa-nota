@@ -1,0 +1,9 @@
+.aws-sam
+./processa-nota-usuario/target
+.vscode
+.idea
+*.iml
+*.log
+samconfig.toml
+event.json
+env-vars.json
