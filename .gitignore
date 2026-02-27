@@ -7,5 +7,5 @@
 samconfig.toml
 event.json
 env-vars.json
-./processa-nota-usuario/target
+processa-nota-usuario/target
 env.json
