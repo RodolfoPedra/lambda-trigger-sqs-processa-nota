@@ -9,7 +9,7 @@ public class App implements RequestHandler<SQSEvent, Object> {
     public Object handleRequest(final SQSEvent event, final Context context) {
         
         event.getRecords().forEach(record -> {
-            System.out.println(record.getBody());
+            context.getLogger().log(String.format("Mensagem SQS %s : %s", record.getBody(), record));
         });
 
         return null;

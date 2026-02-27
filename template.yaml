@@ -1,45 +1,62 @@
+# This AWS SAM template has been generated from your function's configuration. If
+# your function has one or more triggers, note that the AWS resources associated
+# with these triggers aren't fully specified in this template and include
+# placeholder values. Open this template in AWS Infrastructure Composer or your
+# favorite IDE and modify it to specify a serverless application with other AWS
+# resources.
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: A simple AWS SAM template for a Hello World function.
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Function:
-    Timeout: 20
-
-    # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
-    LoggingConfig:
-      LogFormat: JSON
+Description: An AWS Serverless Application Model template describing your function.
 Resources:
-  processaNotas:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  processanfce:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: processa-nota-usuario
+      CodeUri: ./processa-nota-usuario
+      Description: ''
+      MemorySize: 512
+      Timeout: 15
       Handler: poupacompra.processanota.App::handleRequest
       Runtime: java21
       Architectures:
-      - x86_64
-      MemorySize: 512
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          PARAM1: VALUE
+        - x86_64
+      EphemeralStorage:
+        Size: 512
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 21600
+        MaximumRetryAttempts: 2
+      PackageType: Zip
+      Policies:
+        - Statement:
+            - Sid: AWSLambdaSQSPollerExecutionRole
+              Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: arn:aws:sqs:eu-central-1:000000000000:*
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+              Resource: arn:aws:logs:eu-central-1:000000000000:*
+            - Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource:
+                - arn:aws:logs:eu-central-1:000000000000:log-group:/aws/lambda/processa_nfce:*
+      RecursiveLoop: Terminate
+      SnapStart:
+        ApplyOn: None
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        SQS1:
+          Type: SQS
           Properties:
-            Path: /hello
-            Method: get
-
-# Outputs:
-#   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-#   # Find out more about other implicit resources you can reference within SAM
-#   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-#   HelloWorldApi:
-#     Description: API Gateway endpoint URL for Prod stage for Hello World 
-#       function
-#     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-#   HelloWorldFunction:
-#     Description: Hello World Lambda Function ARN
-#     Value: !GetAtt HelloWorldFunction.Arn
-#   HelloWorldFunctionIamRole:
-#     Description: Implicit IAM Role created for Hello World function
-#     Value: !GetAtt HelloWorldFunctionRole.Arn
+            Queue: !GetAtt SQSQueue1.Arn
+            BatchSize: 10
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto
+  SQSQueue1:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: SQSQueue1
+      SqsManagedSseEnabled: true
